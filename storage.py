@@ -1,14 +1,16 @@
 import json
+import os
 from datetime import datetime
-from pathlib import Path
-from typing import List
 
 from models import Task, TaskStatus
 
 path = "tasks.json"
 
 def _ensure_json() -> None:
-    Path(path).touch()
+    if not os.path.exists(path):
+        with open(path, "w") as f:
+            json.dump([], f, indent=4)
+
 
 def _convert_status(status_str):
     try:
@@ -23,8 +25,8 @@ def _dict_to_task(data: dict) -> Task:
         id=data["id"],
         description=data["description"],
         status=_convert_status(data["status"]),
-        created_at=datetime.strptime(data['d'], "%Y-%m-%d %H:%M:%S"),
-        updated_at=datetime.strptime(data['u'], "%Y-%m-%d %H:%M:%S")
+        created_at= datetime.fromisoformat(data["createdAt"]),
+        updated_at=datetime.fromisoformat(data["updatedAt"])
     )
 
 
@@ -33,25 +35,31 @@ def _task_to_dict(task: Task) -> dict:
         "id": task.id,
         "description": task.description,
         "status": task.status.value,
-        "d": task.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-        "u": task.updated_at.strftime("%Y-%m-%d %H:%M:%S")
+        "createdAt": task.created_at.isoformat(),
+        "updatedAt": task.updated_at.isoformat()
     }
 
 
-def load_tasks() -> list[Task]:
+def load_tasks() -> list[Task] :
     tasks = []
-    if not Path(path).exists():
+    _ensure_json()
+
+    try:
+        with open(path, "r") as f:
+            json_data = json.load(f)
+    except (OSError, json.JSONDecodeError):
         return tasks
 
-    with open(path, "r") as f:
+    for item in json_data:
         try:
-            json_data = json.load(f)
-            return [_dict_to_task(item) for item in json_data]
-        except (json.JSONDecodeError, KeyError):
-            return tasks
+            tasks.append(_dict_to_task(item))
+        except (ValueError, KeyError):
+            pass
+    return tasks
+
 
 #save to JSON
-def save_tasks(tasks : List[Task]) -> None:
+def save_tasks(tasks : list[Task]) -> None:
     _ensure_json()
 
     dict_list = [_task_to_dict(task) for task in tasks]
@@ -62,6 +70,5 @@ def save_task(new_task : Task) -> None:
     current_task = load_tasks()
     current_task.append(new_task)
     save_tasks(current_task)
-
 
 
