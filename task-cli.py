@@ -1,16 +1,24 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from errors import InvalidStatusError
+from models import TaskStatus
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+
+def convert_status(arg: str) -> TaskStatus:
+    if not arg.strip():
+        raise InvalidStatusError("Status cannot be empty")
+
+    name = arg.strip().upper().replace('-', '_').replace(' ', '_')
+
+    if name in TaskStatus.__members__:
+        return TaskStatus[name]
+
+    allowed_names = ", ".join(TaskStatus.__members__.keys())
+    allowed_values = ", ".join(m.value for m in TaskStatus)
+    raise InvalidStatusError(f"{name} is not a valid status. "
+        f"Allowed values : {allowed_values} "
+        f"Allowed names : {allowed_names}"
+                             )
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
