@@ -16,7 +16,7 @@ def _convert_status(status_str):
     try:
         return TaskStatus(status_str)
     except ValueError:
-        return TaskStatus.TODO # default to TO-DO if something is wrong with string.
+        return TaskStatus.TODO  # Default to TODO if the saved status is invalid.
 
 
 
@@ -39,7 +39,6 @@ def _task_to_dict(task: Task) -> dict:
         "updatedAt": task.updated_at.isoformat()
     }
 
-
 def load_tasks() -> list[Task] :
     tasks = []
     _ensure_json()
@@ -54,11 +53,11 @@ def load_tasks() -> list[Task] :
         try:
             tasks.append(_dict_to_task(item))
         except (ValueError, KeyError):
+            # Skip invalid saved tasks instead of failing to load the whole file.
             pass
     return tasks
 
 
-#save to JSON
 def save_tasks(tasks : list[Task]) -> None:
     _ensure_json()
 
@@ -70,5 +69,4 @@ def save_task(new_task : Task) -> None:
     current_task = load_tasks()
     current_task.append(new_task)
     save_tasks(current_task)
-
 
