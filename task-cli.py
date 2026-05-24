@@ -62,26 +62,69 @@ def build_parser():
     subparsers = parser.add_subparsers(dest="command", required=True)
 
 
-    add_parser = subparsers.add_parser("add")
-    add_parser.add_argument("description", type=str)
+    add_parser = subparsers.add_parser(
+        "add",
+        help = "Add a new task"
+        )
+    add_parser.add_argument("description", 
+                            type=str,
+                            help="Task description"
+                            )
     add_parser.set_defaults(func=add_task)
 
-    update_parser = subparsers.add_parser("update")
-    update_parser.add_argument("id",type=int)
-    update_parser.add_argument("description", type=str)
+    update_parser = subparsers.add_parser(
+        "update",
+        help="Update a task description"
+        )
+    update_parser.add_argument(
+        "id",
+        type=int,
+        help="ID of the task to update"
+        )
+    update_parser.add_argument(
+        "description",
+        type=str,
+        help="New task description"
+        )
     update_parser.set_defaults(func=update)
 
-    delete_parser = subparsers.add_parser("delete")
-    delete_parser.add_argument("id", type=int)
+    delete_parser = subparsers.add_parser(
+        "delete",
+        help="Delete a task"
+        )
+    delete_parser.add_argument(
+        "id",
+        type=int,
+        help="ID of the task to delete"
+        )
     delete_parser.set_defaults(func=delete)
 
-    mark_parser = subparsers.add_parser("mark")
-    mark_parser.add_argument("id", type=int)
-    mark_parser.add_argument("status", type=convert_status)
+    mark_parser = subparsers.add_parser(
+        "mark",
+        help="Mark task as todo, in-progress or done"
+        )
+    mark_parser.add_argument(
+        "id", 
+        type=int,
+        help="ID of task to mark"
+        )
+    mark_parser.add_argument(
+        "status",
+        type=convert_status, 
+        help="New status: todo, in-progress, or done"
+        )
     mark_parser.set_defaults(func=mark_task)
 
-    list_parser = subparsers.add_parser("list")
-    list_parser.add_argument("status", nargs="?",type=convert_status)
+    list_parser = subparsers.add_parser(
+        "list",
+        help="List all tasks or filter by status"
+    )
+    list_parser.add_argument(
+        "status",
+        nargs="?",
+        type=convert_status,
+        help="Optional status filter: todo, in-progress, or done"
+        )
     list_parser.set_defaults(func=list)
 
     return parser
